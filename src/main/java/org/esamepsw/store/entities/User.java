@@ -1,0 +1,41 @@
+package org.esamepsw.store.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.AnyDiscriminatorImplicitValues;
+
+import java.util.List;
+
+@Setter
+@Getter
+@Entity
+@Table(name = "user")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
+    @Column(name = "first_name", nullable = false, length = 40)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false, length = 40)
+    private String lastName;
+
+    @Column(name = "email", nullable = false, length = 60)
+    private String email;
+
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    @Column(name = "address", length = 100)
+    private String address;
+
+    @OneToMany(mappedBy = "user",  cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Purchase> purchases;
+
+}
