@@ -13,7 +13,7 @@ public class ProductInPurchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private int id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "related_purchase")
