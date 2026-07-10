@@ -52,4 +52,23 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = false)
+    public User syncUserFromKeycloak(String keycloakId, String email, String firstName, String lastName, String phone, String address) {
+
+        if (!userRepository.existsByKeycloakId(keycloakId)) {
+
+            User newUser = new User();
+            newUser.setKeycloakId(keycloakId);
+            newUser.setEmail(email);
+            newUser.setFirstName(firstName);
+            newUser.setLastName(lastName);
+            newUser.setPhone(phone);
+            newUser.setAddress(address);
+
+            return userRepository.save(newUser);
+        }
+
+        return userRepository.findByKeycloakId(keycloakId);
+    }
+
 }

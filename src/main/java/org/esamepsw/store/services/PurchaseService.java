@@ -12,6 +12,7 @@ import org.esamepsw.store.repositories.PurchaseRepository;
 import org.esamepsw.store.repositories.UserRepository;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
 import org.esamepsw.store.utilities.exceptions.purchase.QuantityUnavailableException;
+import org.esamepsw.store.utilities.exceptions.user.UserAlreadyExistsException;
 import org.esamepsw.store.utilities.exceptions.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

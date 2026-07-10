@@ -36,6 +36,9 @@ public class User {
     @Column(name = "address", length = 100)
     private String address;
 
+    @Column(name = "keycloak_id")
+    private String keycloakId;
+
     @OneToMany(targetEntity = Purchase.class , mappedBy = "user")
     @JsonIgnore
     private List<Purchase> purchases= new ArrayList<Purchase>();

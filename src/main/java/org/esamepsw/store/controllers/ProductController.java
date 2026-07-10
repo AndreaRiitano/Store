@@ -8,6 +8,7 @@ import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority('admin', 'seller')")
     public ResponseEntity addProduct(@RequestBody Product product) {
 
         try{
@@ -31,6 +33,7 @@ public class ProductController {
     }
 
     @PostMapping("/update")
+    @PreAuthorize("hasAnyAuthority('admin', 'seller')")
     public ResponseEntity updateProduct(@RequestBody Product product) {
         try{
             productService.updateProduct(product);
@@ -79,6 +82,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyAuthority('admin', 'seller')")
     public ResponseEntity deleteProduct(@PathVariable("id") long id) {
 
         try {
