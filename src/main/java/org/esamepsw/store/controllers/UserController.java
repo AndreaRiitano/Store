@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @PostMapping("/sync")
-    public ResponseEntity<?> syncUserData(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<User> syncUserData(@AuthenticationPrincipal Jwt jwt) {
 
 
         String keycloakId = jwt.getClaimAsString("sub");
@@ -49,8 +49,8 @@ public class UserController {
         String phone = jwt.getClaimAsString("phone");
         String address = jwt.getClaimAsString("address");
 
-        userService.syncUserFromKeycloak(keycloakId, email, firstName, lastName, phone, address);
+       User added =  userService.syncUserFromKeycloak(keycloakId, email, firstName, lastName, phone, address);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(added, HttpStatus.OK);
     }
 }
