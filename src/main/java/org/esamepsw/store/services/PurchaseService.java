@@ -1,7 +1,6 @@
 package org.esamepsw.store.services;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 import org.esamepsw.store.entities.Product;
@@ -36,7 +35,7 @@ public class PurchaseService {
     private EntityManager entityManager;
 
     @Transactional(readOnly = true)
-    public List<Purchase> getPurchasesByUser(User user) throws UserNotFoundException {
+    public List<Purchase> getPurchasesByUser( User user) throws UserNotFoundException {
         if ( !userRepository.existsById(user.getId()) ) {
             throw new UserNotFoundException();
         }
@@ -88,7 +87,7 @@ public class PurchaseService {
         return newPurchase;
     }
 
-    
+
     @Transactional(readOnly = true)
     public List<Purchase> getAllPurchases() {
         return purchaseRepository.findAll();
