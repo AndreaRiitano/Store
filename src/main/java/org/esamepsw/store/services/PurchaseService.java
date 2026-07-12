@@ -8,6 +8,7 @@ import org.esamepsw.store.entities.ProductInPurchase;
 import org.esamepsw.store.entities.Purchase;
 import org.esamepsw.store.entities.User;
 import org.esamepsw.store.repositories.ProductInPurchaseRepository;
+import org.esamepsw.store.repositories.ProductRepository;
 import org.esamepsw.store.repositories.PurchaseRepository;
 import org.esamepsw.store.repositories.UserRepository;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
@@ -32,6 +33,9 @@ public class PurchaseService {
     @Autowired
     private PurchaseRepository purchaseRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -41,6 +45,13 @@ public class PurchaseService {
             throw new UserNotFoundException();
         }
         return purchaseRepository.findByUser(user);
+    }
+
+    public List<ProductInPurchase> getProductInPurchaseByUser( User user) throws UserNotFoundException {
+        if ( !userRepository.existsById(user.getId()) ) {
+            throw new UserNotFoundException();
+        }
+        return productInPurchaseRepository.findProductInPurchaseByUser(user);
     }
 
     @Transactional(readOnly = false)
@@ -92,5 +103,14 @@ public class PurchaseService {
     @Transactional(readOnly = true)
     public List<Purchase> getAllPurchases() {
         return purchaseRepository.findAll();
+    }
+
+    @Transactional(readOnly = false)
+    public ProductInPurchase addProductInPurchase(ProductInPurchase incomingPurchase) {
+
+        if(!productRepository.findById(incomingPurchase.getProduct().getId()).isPresent()) {
+            throw new ProductNotFoundException();
+        }
+       return productInPurchaseRepository.save(incomingPurchase);
     }
 }

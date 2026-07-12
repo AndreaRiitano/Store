@@ -28,6 +28,10 @@ public class ProductInPurchase {
     @JoinColumn(name = "product")
     private Product product;
 
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "user_pip")
+    private User user;
+
     @Version
     private long version;
 

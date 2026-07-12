@@ -43,6 +43,10 @@ public class User {
     @JsonIgnore
     private List<Purchase> purchases= new ArrayList<Purchase>();
 
+    @OneToMany(targetEntity = ProductInPurchase.class, mappedBy = "use")
+    @JsonIgnore
+    private List<ProductInPurchase> pip = new ArrayList<>();
+
     @Version
     private long version;
 

@@ -1,6 +1,7 @@
 package org.esamepsw.store.controllers;
 
 
+import org.esamepsw.store.entities.ProductInPurchase;
 import org.esamepsw.store.entities.Purchase;
 import org.esamepsw.store.entities.User;
 import org.esamepsw.store.services.PurchaseService;
@@ -40,5 +41,15 @@ public class PurchaseController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    @GetMapping("/cart")
+    public ResponseEntity<List<ProductInPurchase>> getProductInPurchaseByUser(@RequestParam User user) {
+        try{
+            List<ProductInPurchase> result = purchaseService.getProductInPurchaseByUser(user);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }catch (UserNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
