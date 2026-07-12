@@ -52,6 +52,15 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public User findUserByKeycloakId(String keycloakId) throws UserNotFoundException {
+        if(userRepository.existsByKeycloakId(keycloakId)) {
+            return userRepository.findByKeycloakId(keycloakId);
+        }else  {
+            throw new UserNotFoundException();
+        }
+    }
+
     @Transactional(readOnly = false)
     public User syncUserFromKeycloak(String keycloakId, String email, String firstName, String lastName, String phone, String address) {
 
