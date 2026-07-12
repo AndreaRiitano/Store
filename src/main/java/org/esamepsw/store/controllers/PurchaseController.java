@@ -6,6 +6,7 @@ import org.esamepsw.store.entities.ProductInPurchase;
 import org.esamepsw.store.entities.Purchase;
 import org.esamepsw.store.entities.User;
 import org.esamepsw.store.services.PurchaseService;
+import org.esamepsw.store.services.UserService;
 import org.esamepsw.store.utilities.dto.PipAddRequest;
 import org.esamepsw.store.utilities.exceptions.product.ProductCategoryNotFound;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
@@ -21,6 +22,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/purchases")
 public class PurchaseController {
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private PurchaseService purchaseService;
@@ -59,9 +63,9 @@ public class PurchaseController {
     }
 
     @GetMapping("/cart")
-    public ResponseEntity<List<ProductInPurchase>> getProductInPurchaseByUser(@RequestParam User user) {
+    public ResponseEntity<List<ProductInPurchase>> getProductInPurchaseByUser(@RequestParam String keycloakId) {
         try{
-            List<ProductInPurchase> result = purchaseService.getProductInPurchaseByUser(user);
+            List<ProductInPurchase> result = purchaseService.getProductInPurchaseByUser(userService.findUserByKeycloakId(keycloakId));
             return new ResponseEntity<>(result, HttpStatus.OK);
         }catch (UserNotFoundException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
