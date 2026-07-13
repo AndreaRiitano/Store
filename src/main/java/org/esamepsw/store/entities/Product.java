@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -13,6 +15,8 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "product")
+@SQLDelete(sql = "UPDATE product SET is_deleted = true WHERE id=? AND version=?")
+@SQLRestriction("is_deleted = false")
 public class Product {
 
     @Id
@@ -47,6 +51,9 @@ public class Product {
 
     @Version
     private long version;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted = false;
 
 
 }

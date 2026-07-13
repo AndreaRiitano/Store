@@ -36,11 +36,12 @@ public class ProductController {
     @PreAuthorize("hasAnyAuthority('admin', 'seller')")
     public ResponseEntity updateProduct(@RequestBody Product product) {
         try{
-            productService.updateProduct(product);
+            Product updated = productService.updateProduct(product);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
         }catch(ProductNotFoundException e){
             return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+
     }
     @GetMapping("/all")
     public ResponseEntity<List<Product>> getAllProducts() {

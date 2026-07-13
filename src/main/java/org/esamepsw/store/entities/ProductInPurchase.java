@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
@@ -26,6 +28,7 @@ public class ProductInPurchase {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "product")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Product product;
 
     @ManyToOne(cascade = CascadeType.MERGE)

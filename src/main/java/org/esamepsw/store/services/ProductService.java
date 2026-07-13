@@ -10,6 +10,7 @@ import org.esamepsw.store.repositories.ProductRepository;
 import org.esamepsw.store.utilities.exceptions.product.ProductAlreadyExistsException;
 import org.esamepsw.store.utilities.exceptions.product.ProductCategoryNotFound;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
+import org.esamepsw.store.utilities.exceptions.product.ProductNotValidException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,8 +74,15 @@ public class ProductService {
         if(productRepository.existsProductByCode(product.getCode())) {
             throw new ProductAlreadyExistsException();
         }
-        productRepository.save(product);
-        return product;
+        if(product.getName()!=null && product.getCode()!=null && product.getCategory()!=null
+                && product.getDescription()!=null && product.getPrice()>0.0
+                && product.getQuantity()>0 && product.getImgUrl()!=null) {
+
+             return productRepository.save(product);
+        }else{
+            throw new ProductNotValidException();
+
+        }
 
     }
 
@@ -90,25 +98,25 @@ public class ProductService {
         entityManager.lock(originalProduct, LockModeType.OPTIMISTIC);
 
         if(product.getName()!=null) {
-            product.setName(product.getName());
+            originalProduct.setName(product.getName());
         }
         if(product.getDescription()!=null) {
-            product.setDescription(product.getDescription());
+            originalProduct.setDescription(product.getDescription());
         }
         if(product.getCode()!=null) {
-            product.setCode(product.getCode());
+            originalProduct.setCode(product.getCode());
         }
         if(product.getCategory()!=null) {
-            product.setCategory(product.getCategory());
+            originalProduct.setCategory(product.getCategory());
         }
         if(product.getPrice()>0.0){
-            product.setPrice(product.getPrice());
+            originalProduct.setPrice(product.getPrice());
         }
         if(product.getQuantity()>=0){
-            product.setQuantity(product.getQuantity());
+            originalProduct.setQuantity(product.getQuantity());
         }
         if(product.getImgUrl()!=null) {
-            product.setImgUrl(product.getImgUrl());
+            originalProduct.setImgUrl(product.getImgUrl());
         }
 
 
