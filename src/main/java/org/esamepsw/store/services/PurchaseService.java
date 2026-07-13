@@ -12,14 +12,13 @@ import org.esamepsw.store.repositories.ProductRepository;
 import org.esamepsw.store.repositories.PurchaseRepository;
 import org.esamepsw.store.repositories.UserRepository;
 import org.esamepsw.store.utilities.dto.PipRemoveRequest;
-import org.esamepsw.store.utilities.dto.PurchaseAddRequest;
+import org.esamepsw.store.utilities.dto.PurchaseRequest;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
 import org.esamepsw.store.utilities.exceptions.purchase.CartIsEmptyException;
 import org.esamepsw.store.utilities.exceptions.purchase.QuantityUnavailableException;
 import org.esamepsw.store.utilities.dto.PipAddRequest;
 import org.esamepsw.store.utilities.exceptions.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +43,11 @@ public class PurchaseService {
     private EntityManager entityManager;
 
     @Transactional(readOnly = true)
-    public List<Purchase> getPurchasesByUser( User user) throws UserNotFoundException {
-        if ( !userRepository.existsById(user.getId()) ) {
+    public List<Purchase> getPurchasesByUser(PurchaseRequest request) throws UserNotFoundException {
+        if ( !userRepository.existsByKeycloakId(request.getKeycloakId())) {
             throw new UserNotFoundException();
         }
+        User user = userRepository.findByKeycloakId(request.getKeycloakId());
         return purchaseRepository.findByUser(user);
     }
     @Transactional(readOnly = true)
@@ -59,9 +59,9 @@ public class PurchaseService {
     }
 
     @Transactional(readOnly = false)
-    public Purchase addPurchase(PurchaseAddRequest purchaseAddRequest) {
+    public Purchase addPurchase(PurchaseRequest purchaseRequest) {
 
-        Long userId = userRepository.findByKeycloakId(purchaseAddRequest.getKeycloakId()).getId();
+        Long userId = userRepository.findByKeycloakId(purchaseRequest.getKeycloakId()).getId();
 
         User user = entityManager.find(User.class, userId);
         if (user == null) {

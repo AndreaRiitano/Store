@@ -1,7 +1,6 @@
 package org.esamepsw.store.controllers;
 
 
-import org.esamepsw.store.entities.Product;
 import org.esamepsw.store.entities.ProductInPurchase;
 import org.esamepsw.store.entities.Purchase;
 import org.esamepsw.store.entities.User;
@@ -9,15 +8,12 @@ import org.esamepsw.store.services.PurchaseService;
 import org.esamepsw.store.services.UserService;
 import org.esamepsw.store.utilities.dto.PipAddRequest;
 import org.esamepsw.store.utilities.dto.PipRemoveRequest;
-import org.esamepsw.store.utilities.dto.PurchaseAddRequest;
-import org.esamepsw.store.utilities.exceptions.product.ProductCategoryNotFound;
+import org.esamepsw.store.utilities.dto.PurchaseRequest;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
 import org.esamepsw.store.utilities.exceptions.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +29,7 @@ public class PurchaseController {
     private PurchaseService purchaseService;
 
     @PostMapping("/addPurchase")
-    public ResponseEntity addPurchase(@RequestBody PurchaseAddRequest incomingPurchase) {
+    public ResponseEntity addPurchase(@RequestBody PurchaseRequest incomingPurchase) {
         try {
             Purchase added = purchaseService.addPurchase(incomingPurchase);
             return new ResponseEntity<>(added, HttpStatus.CREATED);
@@ -53,11 +49,11 @@ public class PurchaseController {
 
     }
 
-    @GetMapping("/{user}")
-    public ResponseEntity<List<Purchase>> getPurchases(@PathVariable User user) {
+    @PostMapping("/orders")
+    public ResponseEntity<List<Purchase>> getPurchases(@RequestBody PurchaseRequest request) {
 
         try{
-            List<Purchase> result = purchaseService.getPurchasesByUser(user);
+            List<Purchase> result = purchaseService.getPurchasesByUser(request);
             return new ResponseEntity<>(result, HttpStatus.OK);
         }catch (UserNotFoundException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

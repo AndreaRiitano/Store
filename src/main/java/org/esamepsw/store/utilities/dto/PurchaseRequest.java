@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.esamepsw.store.entities.ProductInPurchase;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -14,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 
 
-public class PurchaseAddRequest {
+public class PurchaseRequest {
     String keycloakId;
     String firstName;
     String lastName;
