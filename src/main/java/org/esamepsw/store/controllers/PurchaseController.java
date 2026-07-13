@@ -14,6 +14,7 @@ import org.esamepsw.store.utilities.exceptions.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,14 @@ public class PurchaseController {
 
     @Autowired
     private PurchaseService purchaseService;
+
+
+    @GetMapping("/allPurchase")
+    @PreAuthorize("hasAuthority('admin')")
+    public ResponseEntity<List<Purchase>> getAllPurchase() {
+        List<Purchase> purchases = purchaseService.getAllPurchases();
+        return new ResponseEntity<>(purchases,HttpStatus.OK);
+    }
 
     @PostMapping("/addPurchase")
     public ResponseEntity addPurchase(@RequestBody PurchaseRequest incomingPurchase) {
