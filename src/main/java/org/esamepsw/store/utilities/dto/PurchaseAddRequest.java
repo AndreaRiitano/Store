@@ -15,6 +15,10 @@ import java.util.List;
 
 
 public class PurchaseAddRequest {
-    List<ProductInPurchase> cart;
-    String user;
+    String keycloakId;
+    String firstName;
+    String lastName;
+    String email;
+    String phone;
+    String address;
 }

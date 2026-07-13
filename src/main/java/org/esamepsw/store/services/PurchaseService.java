@@ -55,13 +55,13 @@ public class PurchaseService {
         if ( !userRepository.existsById(user.getId()) ) {
             throw new UserNotFoundException();
         }
-        return productInPurchaseRepository.findProductInPurchaseByUser(user);
+        return productInPurchaseRepository.findProductInPurchaseByUserAndPurchaseIsNull(user);
     }
 
     @Transactional(readOnly = false)
-    public Purchase addPurchase(PurchaseAddRequest incomingPurchase) {
+    public Purchase addPurchase(PurchaseAddRequest purchaseAddRequest) {
 
-        Long userId = userRepository.findByKeycloakId(incomingPurchase.getUser()).getId();
+        Long userId = userRepository.findByKeycloakId(purchaseAddRequest.getKeycloakId()).getId();
 
         User user = entityManager.find(User.class, userId);
         if (user == null) {
