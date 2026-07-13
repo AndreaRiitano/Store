@@ -8,6 +8,7 @@ import org.esamepsw.store.entities.User;
 import org.esamepsw.store.services.PurchaseService;
 import org.esamepsw.store.services.UserService;
 import org.esamepsw.store.utilities.dto.PipAddRequest;
+import org.esamepsw.store.utilities.dto.PipRemoveRequest;
 import org.esamepsw.store.utilities.exceptions.product.ProductCategoryNotFound;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
 import org.esamepsw.store.utilities.exceptions.user.UserNotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,6 +70,17 @@ public class PurchaseController {
             List<ProductInPurchase> result = purchaseService.getProductInPurchaseByUser(userService.findUserByKeycloakId(keycloakId));
             return new ResponseEntity<>(result, HttpStatus.OK);
         }catch (UserNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/cartRemove")
+    public ResponseEntity ProductInPurchase(@RequestBody PipRemoveRequest incomingProduct) {
+
+        try {
+            purchaseService.removeProductInPurchase(incomingProduct);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (ProductNotFoundException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

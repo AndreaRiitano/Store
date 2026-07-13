@@ -11,6 +11,7 @@ import org.esamepsw.store.repositories.ProductInPurchaseRepository;
 import org.esamepsw.store.repositories.ProductRepository;
 import org.esamepsw.store.repositories.PurchaseRepository;
 import org.esamepsw.store.repositories.UserRepository;
+import org.esamepsw.store.utilities.dto.PipRemoveRequest;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
 import org.esamepsw.store.utilities.exceptions.purchase.QuantityUnavailableException;
 import org.esamepsw.store.utilities.dto.PipAddRequest;
@@ -46,7 +47,7 @@ public class PurchaseService {
         }
         return purchaseRepository.findByUser(user);
     }
-
+    @Transactional(readOnly = true)
     public List<ProductInPurchase> getProductInPurchaseByUser( User user) throws UserNotFoundException {
         if ( !userRepository.existsById(user.getId()) ) {
             throw new UserNotFoundException();
@@ -107,7 +108,6 @@ public class PurchaseService {
 
     @Transactional(readOnly = false)
     public ProductInPurchase addProductInPurchase(PipAddRequest incomingPurchase) {
-        System.out.println(incomingPurchase.getKeycloakId()+"ciao");
         User user = userRepository.findByKeycloakId(incomingPurchase.getKeycloakId());
         ProductInPurchase toAdd = new ProductInPurchase();
         toAdd.setUser(user);
@@ -121,5 +121,20 @@ public class PurchaseService {
         }
 
        return productInPurchaseRepository.save(toAdd);
+    }
+    @Transactional(readOnly = false)
+    public String removeProductInPurchase(PipRemoveRequest incomingRemoveRequest) {
+
+        User user = userRepository.findByKeycloakId(incomingRemoveRequest.getKeycloakId());
+        if(!userRepository.existsByKeycloakId(incomingRemoveRequest.getKeycloakId())) {
+            throw new UserNotFoundException();
+        }
+        if(!productRepository.existsProductById(incomingRemoveRequest.getProduct().getId())) {
+            throw new ProductNotFoundException();
+        }
+        ProductInPurchase toRemove = productInPurchaseRepository.findFirstByUserIdAndProductId(user.getId(), incomingRemoveRequest.getProduct().getId());
+        productInPurchaseRepository.delete(toRemove);
+       // productInPurchaseRepository.deleteByUserIdAndProductId(user.getId(), incomingRemoveRequest.getProduct().getId());
+        return ("deleted");
     }
 }
