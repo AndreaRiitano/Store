@@ -93,4 +93,15 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable("id") long id) {
+        try {
+            Product prod = productService.findById(id);
+            return new ResponseEntity<>(prod, HttpStatus.OK);
+        }catch (ProductNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
 }
