@@ -12,11 +12,14 @@ import org.esamepsw.store.repositories.ProductRepository;
 import org.esamepsw.store.repositories.PurchaseRepository;
 import org.esamepsw.store.repositories.UserRepository;
 import org.esamepsw.store.utilities.dto.PipRemoveRequest;
+import org.esamepsw.store.utilities.dto.PurchaseAddRequest;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
+import org.esamepsw.store.utilities.exceptions.purchase.CartIsEmptyException;
 import org.esamepsw.store.utilities.exceptions.purchase.QuantityUnavailableException;
 import org.esamepsw.store.utilities.dto.PipAddRequest;
 import org.esamepsw.store.utilities.exceptions.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,47 +59,45 @@ public class PurchaseService {
     }
 
     @Transactional(readOnly = false)
-    public Purchase addPurchase(Purchase incomingPurchase) {
+    public Purchase addPurchase(PurchaseAddRequest incomingPurchase) {
 
-        //da mettere altro per controllo utente
+        Long userId = userRepository.findByKeycloakId(incomingPurchase.getUser()).getId();
 
-        User user = entityManager.find(User.class, incomingPurchase.getUser().getId());
+        User user = entityManager.find(User.class, userId);
         if (user == null) {
             throw new UserNotFoundException();
         }
-
+        List<ProductInPurchase> cartItems = productInPurchaseRepository.findProductInPurchaseByUserAndPurchaseIsNull(user);
         Purchase newPurchase = new Purchase();
         newPurchase.setUser(user);
 
-        if (incomingPurchase.getProductInPurchase() != null) {
-            for (ProductInPurchase incomingPip : incomingPurchase.getProductInPurchase()) {
-
-                Product product = entityManager.find(
-                        Product.class,
-                        incomingPip.getProduct().getId(),
-                        LockModeType.PESSIMISTIC_WRITE
-                );
-
-                if (product == null) {
-                    throw new ProductNotFoundException();
-                }
-
-                if (product.getQuantity() < incomingPip.getQuantity()) {
-                    throw new QuantityUnavailableException();
-                }
-
-                product.setQuantity(product.getQuantity() - incomingPip.getQuantity());
-
-                ProductInPurchase newPip = new ProductInPurchase();
-                newPip.setPurchase(newPurchase);
-                newPip.setProduct(product);
-                newPip.setQuantity(incomingPip.getQuantity());
-
-                newPurchase.getProductInPurchase().add(newPip);
-            }
+        if(cartItems.isEmpty()){
+            throw new CartIsEmptyException();
         }
-        entityManager.persist(newPurchase);
 
+        for (ProductInPurchase incomingPip : cartItems) {
+
+            Product product = entityManager.find(
+                    Product.class,
+                    incomingPip.getProduct().getId(),
+                    LockModeType.PESSIMISTIC_WRITE
+            );
+
+            if (product == null) {
+                throw new ProductNotFoundException();
+            }
+
+            if (product.getQuantity() < incomingPip.getQuantity()) {
+                throw new QuantityUnavailableException();
+            }
+
+            product.setQuantity(product.getQuantity() - incomingPip.getQuantity());
+
+            incomingPip.setPurchase(newPurchase);
+        }
+        newPurchase.setProductInPurchase(cartItems);
+
+        entityManager.persist(newPurchase);
         return newPurchase;
     }
 
@@ -109,6 +110,7 @@ public class PurchaseService {
     @Transactional(readOnly = false)
     public ProductInPurchase addProductInPurchase(PipAddRequest incomingPurchase) {
         User user = userRepository.findByKeycloakId(incomingPurchase.getKeycloakId());
+        ProductInPurchase existingPip = productInPurchaseRepository.findFirstByUserIdAndProductIdAndPurchaseIsNull(user.getId(), incomingPurchase.getProduct().getId());
         ProductInPurchase toAdd = new ProductInPurchase();
         toAdd.setUser(user);
         toAdd.setProduct(incomingPurchase.getProduct());
@@ -119,11 +121,18 @@ public class PurchaseService {
         if(!productRepository.existsProductById(toAdd.getProduct().getId())) {
             throw new ProductNotFoundException();
         }
+        if(existingPip != null){
+            existingPip.setQuantity(existingPip.getQuantity() + 1);
+            return productInPurchaseRepository.save(existingPip);
+        }else{
 
-       return productInPurchaseRepository.save(toAdd);
+            return productInPurchaseRepository.save(toAdd);
+        }
+
+
     }
     @Transactional(readOnly = false)
-    public String removeProductInPurchase(PipRemoveRequest incomingRemoveRequest) {
+    public ProductInPurchase removeProductInPurchase(PipRemoveRequest incomingRemoveRequest) {
 
         User user = userRepository.findByKeycloakId(incomingRemoveRequest.getKeycloakId());
         if(!userRepository.existsByKeycloakId(incomingRemoveRequest.getKeycloakId())) {
@@ -132,9 +141,18 @@ public class PurchaseService {
         if(!productRepository.existsProductById(incomingRemoveRequest.getProduct().getId())) {
             throw new ProductNotFoundException();
         }
-        ProductInPurchase toRemove = productInPurchaseRepository.findFirstByUserIdAndProductId(user.getId(), incomingRemoveRequest.getProduct().getId());
-        productInPurchaseRepository.delete(toRemove);
-       // productInPurchaseRepository.deleteByUserIdAndProductId(user.getId(), incomingRemoveRequest.getProduct().getId());
-        return ("deleted");
+        ProductInPurchase existingPip = productInPurchaseRepository.findFirstByUserIdAndProductIdAndPurchaseIsNull(user.getId(), incomingRemoveRequest.getProduct().getId());
+        if(existingPip != null){
+            if(existingPip.getQuantity() > 1) {
+                existingPip.setQuantity(existingPip.getQuantity() - 1);
+                productInPurchaseRepository.save(existingPip);
+
+            }else {
+                productInPurchaseRepository.delete(existingPip);
+
+            }
+        }
+        return existingPip;
     }
+
 }

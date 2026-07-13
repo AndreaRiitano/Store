@@ -9,6 +9,7 @@ import org.esamepsw.store.services.PurchaseService;
 import org.esamepsw.store.services.UserService;
 import org.esamepsw.store.utilities.dto.PipAddRequest;
 import org.esamepsw.store.utilities.dto.PipRemoveRequest;
+import org.esamepsw.store.utilities.dto.PurchaseAddRequest;
 import org.esamepsw.store.utilities.exceptions.product.ProductCategoryNotFound;
 import org.esamepsw.store.utilities.exceptions.product.ProductNotFoundException;
 import org.esamepsw.store.utilities.exceptions.user.UserNotFoundException;
@@ -32,7 +33,7 @@ public class PurchaseController {
     private PurchaseService purchaseService;
 
     @PostMapping("/addPurchase")
-    public ResponseEntity addPurchase(@RequestBody Purchase incomingPurchase) {
+    public ResponseEntity addPurchase(@RequestBody PurchaseAddRequest incomingPurchase) {
         try {
             Purchase added = purchaseService.addPurchase(incomingPurchase);
             return new ResponseEntity<>(added, HttpStatus.CREATED);

@@ -16,6 +16,8 @@ import java.util.List;
 public interface ProductInPurchaseRepository extends JpaRepository<ProductInPurchase, Long> {
     List<ProductInPurchase> findProductInPurchaseByUser(User user);
     ProductInPurchase findFirstByUserIdAndProductId(Long userId, Long productId);
+    ProductInPurchase findFirstByUserIdAndProductIdAndPurchaseIsNull(Long userId, Long productId);
+    List<ProductInPurchase> findProductInPurchaseByUserAndPurchaseIsNull(User user);
     @Modifying
     @Transactional
     @Query("DELETE FROM ProductInPurchase pip WHERE pip.user.id = :userId AND pip.product.id = :productId")
